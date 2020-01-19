@@ -6,7 +6,6 @@
     <div class="logo">
       <p>partygame</p>
     </div>
-    <!-- <h2>Witaj {{player[0]}}</h2> -->
     <div class="players">
       <p>Aktualnie odpowiada: {{whoTurn}}</p>
       <p>
@@ -47,24 +46,26 @@
   </div>
 </template>
 <script>
-import CountDown from "vuejs-count-down";
-import AlertBox from "./../components/AlertBox.vue";
-import io from "socket.io-client";
+import CountDown from 'vuejs-count-down';
+import AlertBox from './../components/AlertBox.vue';
+import io from 'socket.io-client';
+import store from './../store';
 
 export default {
-  name: "game",
+  name: 'game',
+  store: store,
   data() {
     return {
-      socket: io("http://192.168.0.104:3000"),
+      socket: io('http://localhost:3000'),
       players: this.$store.state.players,
       autoStart: false,
       showAlertBox: false,
-      countDownSeconds: "",
-      title: "",
-      howIsNext: "",
+      countDownSeconds: '',
+      title: '',
+      howIsNext: '',
       users: [],
-      question: "",
-      whoTurn: ""
+      question: '',
+      whoTurn: ''
     };
   },
   methods: {
@@ -74,10 +75,10 @@ export default {
       ];
     },
     addPoints() {
-      this.socket.emit("ADD_POINTS", this.question.points, this.whoTurn);
+      this.socket.emit('ADD_POINTS', this.question.points, this.whoTurn);
     },
     subtractPoints() {
-      this.socket.emit("SUBSTRACT_POINTS", this.question.points, this.whoTurn);
+      this.socket.emit('SUBSTRACT_POINTS', this.question.points, this.whoTurn);
     },
     passedQuestion() {
       this.endOfTime(
@@ -103,7 +104,7 @@ export default {
     endOfTime(content, next) {
       this.title = content;
       this.howIsNext = next;
-      this.$refs.countdown.$emit("stop");
+      this.$refs.countdown.$emit('stop');
       this.showAlertBox = true;
     },
     countDownProgress(time) {
@@ -115,13 +116,13 @@ export default {
     },
     confirmAlert() {
       this.endOfTimeInfo = [];
-      this.socket.emit("CHOSEN_PLAYER");
-      this.$refs.countdown.$emit("restart");
+      this.socket.emit('CHOSEN_PLAYER');
+      this.$refs.countdown.$emit('restart');
       this.showAlertBox = false;
     },
     restartGame() {
-      this.$refs.countdown.$emit("restart");
-      this.socket.emit("RESTART_GAME", 0);
+      this.$refs.countdown.$emit('restart');
+      this.socket.emit('RESTART_GAME', 0);
     }
   },
   computed: {
@@ -142,7 +143,7 @@ export default {
       return this.users[newIndex].name;
     },
     generatedPinCode() {
-      return localStorage.getItem("newGamePin");
+      return localStorage.getItem('newGamePin');
     }
   },
   created() {
@@ -150,33 +151,33 @@ export default {
     for (let x in this.players) {
       this.players[x].points = 0;
     }
-    this.socket.emit("CHOSEN_PLAYER");
-    this.socket.on("USERS", data => {
+    this.socket.emit('CHOSEN_PLAYER');
+    this.socket.on('USERS', data => {
       this.users = data;
     });
   },
   mounted() {
-    this.socket.on("USERS", data => {
+    this.socket.on('USERS', data => {
       this.users = data;
     });
-    this.socket.on("choseQuestion", data => {
+    this.socket.on('choseQuestion', data => {
       this.question = data;
     });
-    this.socket.on("PICKED_PLAYER", data => {
+    this.socket.on('PICKED_PLAYER', data => {
       this.whoTurn = data;
       if (this.whoTurn === this.player[0]) {
-        document.getElementById("questionContent").className = "visible";
-        document.getElementById("countdownTimer").style.display = "grid";
-        this.$refs.countdown.$emit("restart");
+        document.getElementById('questionContent').className = 'visible';
+        document.getElementById('countdownTimer').style.display = 'grid';
+        this.$refs.countdown.$emit('restart');
       } else {
-        document.getElementById("questionContent").className = "hidden";
-        document.getElementById("countdownTimer").style.display = "none";
-        this.$refs.countdown.$emit("stop");
+        document.getElementById('questionContent').className = 'hidden';
+        document.getElementById('countdownTimer').style.display = 'none';
+        this.$refs.countdown.$emit('stop');
       }
       if (this.player[0] === this.users[0].name) {
-        document.getElementById("restart").style.display = "grid";
+        document.getElementById('restart').style.display = 'grid';
       } else {
-        document.getElementById("restart").style.display = "none";
+        document.getElementById('restart').style.display = 'none';
       }
     });
   },
